@@ -1,0 +1,6 @@
+{
+  "name": "KANU Official Brand Renewal",
+  "description": "동서식품 카누(KANU) 프리미엄 리뉴얼 공식 웹페이지 - 인터랙티브 3D 캡슐 360° 뷰어 및 모바일 햄버거 메뉴 애니메이션",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
