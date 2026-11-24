@@ -23,6 +23,7 @@ export const Capsule3DViewer: React.FC<Capsule3DViewerProps> = ({
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [addedToast, setAddedToast] = useState(false);
   const [viewAngle, setViewAngle] = useState<'front' | 'angle' | 'top'>('angle');
+  const [webglError, setWebglError] = useState(false);
 
   // Three.js object references
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -141,12 +142,18 @@ export const Capsule3DViewer: React.FC<Capsule3DViewerProps> = ({
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
-    // 3. Renderer
-    const renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: true,
-      powerPreference: 'high-performance',
-    });
+    // 3. Renderer (guarded so WebGL failures never crash the page)
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        powerPreference: 'high-performance',
+      });
+    } catch {
+      setWebglError(true);
+      return;
+    }
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -522,6 +529,24 @@ export const Capsule3DViewer: React.FC<Capsule3DViewerProps> = ({
           >
             {/* Dedicated Three.js Canvas Mount */}
             <div ref={mountRef} className="w-full h-full" />
+
+            {/* WebGL Fallback Card */}
+            {webglError && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#141519] p-6 text-center">
+                <div
+                  className="w-20 h-4 rounded-full border border-white/30 mb-1"
+                  style={{ backgroundColor: selectedCapsule.accentHex }}
+                />
+                <div
+                  className="w-16 h-20 rounded-b-2xl border border-white/15 flex items-center justify-center shadow-lg mb-4"
+                  style={{ backgroundColor: selectedCapsule.colorHex }}
+                >
+                  <span className="font-serif text-xs font-bold tracking-widest text-white/90">KANU</span>
+                </div>
+                <p className="text-sm font-medium text-white">{selectedCapsule.nameKo}</p>
+                <p className="text-xs text-zinc-400 mt-1">이 브라우저 환경에서는 2D 프리뷰로 표시됩니다.</p>
+              </div>
+            )}
 
             {/* Subtle Interaction Guide */}
             {!isExtracting && (
